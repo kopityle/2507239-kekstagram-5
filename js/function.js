@@ -13,8 +13,6 @@ function isPalindrome(str) {
   return normalizedStr === reversedStr;
 }
 
-// functions.js
-
 function checkMeetingTime(workStart, workEnd, meetingStart, meetingDuration) {
   const [workStartHour, workStartMin] = workStart.split(':').map(Number);
   const [workEndHour, workEndMin] = workEnd.split(':').map(Number);
@@ -28,3 +26,4 @@ function checkMeetingTime(workStart, workEnd, meetingStart, meetingDuration) {
   return meetingStartTimeInMinutes >= workStartTimeInMinutes &&
          meetingEndTimeInMinutes <= workEndTimeInMinutes;
 }
+
