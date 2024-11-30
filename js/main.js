@@ -1,5 +1,6 @@
 import {getRandomInteger, getRandomArrayElement} from './util.js';
-import {generatePhotos} from './data.js';
+import {generatePhotos} from './mock.js';
+import {renderPictures} from './gallery.js';
 
 const photos = generatePhotos(25);
-//console.log(photos);
+renderPictures(photos);
