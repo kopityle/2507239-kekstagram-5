@@ -4,10 +4,15 @@ const cancelButton = bigPicture.querySelector('.big-picture__cancel');
 const commentsCount = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 
+const COMMENTS_PER_PORTION = 5;
+let currentComments = [];
+let shownCommentsCount = 0;
+
 const hideBigPicture = () => {
   bigPicture.classList.add('hidden');
   body.classList.remove('modal-open');
   document.removeEventListener('keydown', onEscKeyDown);
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
 };
 
 const onEscKeyDown = (evt) => {
@@ -17,7 +22,7 @@ const onEscKeyDown = (evt) => {
   }
 };
 
-const renderComments = (comments) => {
+const renderComments = (comments, isInitial = false) => {
   const commentsList = bigPicture.querySelector('.social__comments');
   const commentTemplate = `
     <li class="social__comment">
@@ -30,9 +35,15 @@ const renderComments = (comments) => {
     </li>
   `;
 
-  commentsList.innerHTML = '';
+  if (isInitial) {
+    commentsList.innerHTML = '';
+    shownCommentsCount = 0;
+  }
   
-  comments.forEach(({avatar, name, message}) => {
+  const fragment = document.createDocumentFragment();
+  const commentsToRender = comments.slice(shownCommentsCount, shownCommentsCount + COMMENTS_PER_PORTION);
+  
+  commentsToRender.forEach(({avatar, name, message}) => {
     const comment = document.createElement('div');
     comment.innerHTML = commentTemplate;
     const commentElement = comment.firstElementChild;
@@ -42,8 +53,25 @@ const renderComments = (comments) => {
     img.alt = name;
     commentElement.querySelector('.social__text').textContent = message;
     
-    commentsList.append(commentElement);
+    fragment.append(commentElement);
   });
+  
+  commentsList.append(fragment);
+  shownCommentsCount += commentsToRender.length;
+  
+  // Обновляем счётчик комментариев
+  commentsCount.innerHTML = `${shownCommentsCount} из <span class="comments-count">${comments.length}</span> комментариев`;
+  
+  // Скрываем кнопку загрузки, если все комментарии показаны
+  if (shownCommentsCount >= comments.length) {
+    commentsLoader.classList.add('hidden');
+  } else {
+    commentsLoader.classList.remove('hidden');
+  }
+};
+
+const onCommentsLoaderClick = () => {
+  renderComments(currentComments);
 };
 
 const showBigPicture = (photo) => {
@@ -56,15 +84,17 @@ const showBigPicture = (photo) => {
   bigPicture.querySelector('.comments-count').textContent = photo.comments.length;
   bigPicture.querySelector('.social__caption').textContent = photo.description;
   
-  // Отрисовываем комментарии
-  renderComments(photo.comments);
+  // Сохраняем текущие комментарии и отрисовываем первую порцию
+  currentComments = photo.comments;
+  renderComments(currentComments, true);
   
-  // Скрываем счетчик комментариев и кнопку загрузки новых
-  commentsCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+  // Показываем счетчик комментариев и кнопку загрузки новых
+  commentsCount.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
   
   // Добавляем обработчики
   document.addEventListener('keydown', onEscKeyDown);
+  commentsLoader.addEventListener('click', onCommentsLoaderClick);
 };
 
 cancelButton.addEventListener('click', hideBigPicture);
