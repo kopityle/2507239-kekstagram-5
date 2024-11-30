@@ -1,3 +1,5 @@
+import { showBigPicture } from './big-picture.js';
+
 const picturesContainer = document.querySelector('.pictures');
 const pictureTemplate = document.querySelector('#picture')
   .content
@@ -11,6 +13,12 @@ const createPicture = (photo) => {
   img.alt = photo.description;
   pictureElement.querySelector('.picture__likes').textContent = photo.likes;
   pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
+
+  // Добавляем обработчик клика
+  pictureElement.addEventListener('click', (evt) => {
+    evt.preventDefault();
+    showBigPicture(photo);
+  });
 
   return pictureElement;
 };
