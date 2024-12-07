@@ -1,10 +1,12 @@
 import '../vendor/pristine/pristine.min.js';
+import { reset as resetEffects } from './effects.js';
+import { reset as resetScale } from './scale.js';
 
 const form = document.querySelector('.img-upload__form');
 const fileInput = document.querySelector('.img-upload__input');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
 const body = document.querySelector('body');
-const closeButton = document.querySelector('.img-upload__cancel');
+const cancelButton = document.querySelector('.img-upload__cancel');
 const hashtagsInput = form.querySelector('.text__hashtags');
 const commentInput = form.querySelector('.text__description');
 
@@ -120,6 +122,8 @@ const closeUploadOverlay = () => {
   fileInput.value = '';
   form.reset();
   pristine.reset();
+  resetScale();
+  resetEffects();
   document.removeEventListener('keydown', onDocumentKeydown);
 };
 
@@ -136,7 +140,7 @@ const onFormSubmit = (evt) => {
 };
 
 fileInput.addEventListener('change', onFileInputChange);
-closeButton.addEventListener('click', onCloseButtonClick);
+cancelButton.addEventListener('click', onCloseButtonClick);
 form.addEventListener('submit', onFormSubmit);
 hashtagsInput.addEventListener('input', onHashtagInput);
 commentInput.addEventListener('input', onCommentInput);
