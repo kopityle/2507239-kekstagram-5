@@ -1,4 +1,5 @@
 import { showBigPicture } from './big-picture.js';
+import { getData } from './api.js';
 
 const picturesContainer = document.querySelector('.pictures');
 const pictureTemplate = document.querySelector('#picture')
@@ -34,4 +35,13 @@ const renderPictures = (photos) => {
   picturesContainer.append(fragment);
 };
 
-export { renderPictures };
+const renderGallery = async () => {
+  try {
+    const photos = await getData();
+    renderPictures(photos);
+  } catch (err) {
+    showMessage('Не удалось загрузить фотографии. Попробуйте обновить страницу');
+  }
+};
+
+export { renderGallery };
