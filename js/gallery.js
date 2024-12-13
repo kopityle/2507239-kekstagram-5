@@ -1,5 +1,6 @@
 import { showBigPicture } from './big-picture.js';
 import { getData } from './api.js';
+import { initFilters } from './filters.js';
 
 const picturesContainer = document.querySelector('.pictures');
 const pictureTemplate = document.querySelector('#picture')
@@ -37,11 +38,12 @@ const renderPictures = (photos) => {
 
 const renderGallery = async () => {
   try {
-    const photos = await getData();
-    renderPictures(photos);
+    const pictures = await getData();
+    renderPictures(pictures);
+    initFilters(pictures);
   } catch (err) {
     showMessage('Не удалось загрузить фотографии. Попробуйте обновить страницу');
   }
 };
 
-export { renderGallery };
+export { renderGallery, renderPictures };
