@@ -1,6 +1,7 @@
 import '../vendor/pristine/pristine.min.js';
 import { reset as resetEffects } from './effects.js';
 import { reset as resetScale } from './scale.js';
+import { sendData } from './api.js';
 
 const form = document.querySelector('.img-upload__form');
 const fileInput = document.querySelector('.img-upload__input');
@@ -9,6 +10,7 @@ const body = document.querySelector('body');
 const cancelButton = document.querySelector('.img-upload__cancel');
 const hashtagsInput = form.querySelector('.text__hashtags');
 const commentInput = form.querySelector('.text__description');
+const submitButton = form.querySelector('.img-upload__submit');
 
 const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 const MAX_HASHTAGS = 5;
@@ -87,6 +89,21 @@ const getCommentErrorMessage = () =>
 pristine.addValidator(hashtagsInput, validateHashtags, getHashtagErrorMessage);
 pristine.addValidator(commentInput, validateComment, getCommentErrorMessage);
 
+const SubmitButtonText = {
+  IDLE: 'Опубликовать',
+  SENDING: 'Публикую...'
+};
+
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = SubmitButtonText.SENDING;
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = SubmitButtonText.IDLE;
+};
+
 function onDocumentKeydown(evt) {
   if (evt.key === 'Escape') {
     evt.preventDefault();
@@ -116,32 +133,100 @@ const onFileInputChange = () => {
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
+const resetForm = () => {
+  form.reset();
+  resetScale();
+  resetEffects();
+  pristine.reset();
+};
+
 const closeUploadOverlay = () => {
   uploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
-  fileInput.value = '';
-  form.reset();
-  pristine.reset();
-  resetScale();
-  resetEffects();
   document.removeEventListener('keydown', onDocumentKeydown);
+  resetForm();
 };
 
 const onCloseButtonClick = () => {
   closeUploadOverlay();
 };
 
-const onFormSubmit = (evt) => {
+const onFormSubmit = async (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
+
   if (isValid) {
-    form.submit();
+    blockSubmitButton();
+    try {
+      await sendData(new FormData(evt.target));
+      closeUploadOverlay();
+      const successMessage = document.querySelector('#success')
+        .content
+        .querySelector('.success')
+        .cloneNode(true);
+      document.body.append(successMessage);
+      
+      const onSuccessButtonClick = () => {
+        successMessage.remove();
+      };
+
+      const onSuccessMessageEscKeydown = (messageEvt) => {
+        if (messageEvt.key === 'Escape') {
+          messageEvt.preventDefault();
+          successMessage.remove();
+          document.removeEventListener('keydown', onSuccessMessageEscKeydown);
+        }
+      };
+
+      const onSuccessMessageClick = (messageEvt) => {
+        if (!messageEvt.target.closest('.success__inner')) {
+          successMessage.remove();
+          document.removeEventListener('click', onSuccessMessageClick);
+        }
+      };
+
+      document.addEventListener('keydown', onSuccessMessageEscKeydown);
+      document.addEventListener('click', onSuccessMessageClick);
+      successMessage.querySelector('.success__button').addEventListener('click', onSuccessButtonClick);
+    } catch (err) {
+      const errorMessage = document.querySelector('#error')
+        .content
+        .querySelector('.error')
+        .cloneNode(true);
+      document.body.append(errorMessage);
+
+      const onErrorButtonClick = () => {
+        errorMessage.remove();
+      };
+
+      const onErrorMessageEscKeydown = (messageEvt) => {
+        if (messageEvt.key === 'Escape') {
+          messageEvt.preventDefault();
+          errorMessage.remove();
+          document.removeEventListener('keydown', onErrorMessageEscKeydown);
+        }
+      };
+
+      const onErrorMessageClick = (messageEvt) => {
+        if (!messageEvt.target.closest('.error__inner')) {
+          errorMessage.remove();
+          document.removeEventListener('click', onErrorMessageClick);
+        }
+      };
+
+      document.addEventListener('keydown', onErrorMessageEscKeydown);
+      document.addEventListener('click', onErrorMessageClick);
+      errorMessage.querySelector('.error__button').addEventListener('click', onErrorButtonClick);
+    } finally {
+      unblockSubmitButton();
+    }
   }
 };
 
 fileInput.addEventListener('change', onFileInputChange);
 cancelButton.addEventListener('click', onCloseButtonClick);
 form.addEventListener('submit', onFormSubmit);
+form.addEventListener('reset', closeUploadOverlay);
 hashtagsInput.addEventListener('input', onHashtagInput);
 commentInput.addEventListener('input', onCommentInput);
 hashtagsInput.addEventListener('keydown', onFieldKeydown);
