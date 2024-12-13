@@ -133,17 +133,12 @@ const effectsPreviews = document.querySelectorAll('.effects__preview');
 
 function onFileInputChange() {
   const file = fileInput.files[0];
-  const fileName = file.name.toLowerCase();
-
-  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
-
-  if (matches) {
-    const imageUrl = URL.createObjectURL(file);
-    preview.src = imageUrl;
-    effectsPreviews.forEach((effectPreview) => {
-      effectPreview.style.backgroundImage = `url('${imageUrl}')`;
-    });
-  }
+  const imageUrl = URL.createObjectURL(file);
+  
+  preview.src = imageUrl;
+  effectsPreviews.forEach((effectPreview) => {
+    effectPreview.style.backgroundImage = `url('${imageUrl}')`;
+  });
 
   uploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
