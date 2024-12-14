@@ -206,12 +206,9 @@ const handleFormSubmit = async (evt) => {
   
   try {
     const formData = new FormData(form);
-    const response = await sendData(formData);
-    if (!response.ok) {
-      throw new Error('Ошибка отправки формы');
-    }
-    closeUploadOverlay();
+    await sendData(formData);
     showMessage('success');
+    closeUploadOverlay();
   } catch (err) {
     showMessage('error');
   } finally {
