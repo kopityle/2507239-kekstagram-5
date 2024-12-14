@@ -1,82 +1,72 @@
-import { debounce } from './util.js';
 import { renderPictures } from './gallery.js';
+import { debounce } from './util.js';
 
-const RANDOM_PICTURES_COUNT = 10;
+const PICTURES_COUNT = 10;
 const RERENDER_DELAY = 500;
 
 const filtersElement = document.querySelector('.img-filters');
-const filterForm = document.querySelector('.img-filters__form');
-const defaultBtn = filterForm.querySelector('#filter-default');
-const randomBtn = filterForm.querySelector('#filter-random');
-const discussedBtn = filterForm.querySelector('#filter-discussed');
+const filterFormElement = document.querySelector('.img-filters__form');
+const defaultButtonElement = document.querySelector('#filter-default');
+const randomButtonElement = document.querySelector('#filter-random');
+const discussedButtonElement = document.querySelector('#filter-discussed');
 
-const FilterEnum = {
-  DEFAULT: 'default',
-  RANDOM: 'random',
-  DISCUSSED: 'discussed'
-};
+let pictures = [];
 
-const getRandomPictures = (pictures) => {
+const getRandomPictures = () => {
   const picturesCopy = pictures.slice();
   const randomPictures = [];
 
-  while (randomPictures.length < RANDOM_PICTURES_COUNT) {
+  while (randomPictures.length < PICTURES_COUNT && picturesCopy.length > 0) {
     const randomIndex = Math.floor(Math.random() * picturesCopy.length);
-    const [picture] = picturesCopy.splice(randomIndex, 1);
-    randomPictures.push(picture);
+    randomPictures.push(picturesCopy[randomIndex]);
+    picturesCopy.splice(randomIndex, 1);
   }
 
   return randomPictures;
 };
 
-const sortByComments = (pictureA, pictureB) =>
-  pictureB.comments.length - pictureA.comments.length;
-
-const getDiscussedPictures = (pictures) =>
-  pictures.slice().sort(sortByComments);
-
-const clearPictures = () => {
-  const pictures = document.querySelectorAll('.picture');
-  pictures.forEach((picture) => picture.remove());
+const getDiscussedPictures = () => {
+  return pictures.slice().sort((a, b) => b.comments.length - a.comments.length);
 };
 
-const setActiveButton = (button) => {
+const removePictures = () => {
+  const pictureElements = document.querySelectorAll('.picture');
+  pictureElements.forEach((element) => element.remove());
+};
+
+const rerenderPictures = (evt) => {
+  const clickedButton = evt.target;
+  
+  if (clickedButton.classList.contains('img-filters__button--active')) {
+    return;
+  }
+
   document.querySelector('.img-filters__button--active')
     .classList.remove('img-filters__button--active');
-  button.classList.add('img-filters__button--active');
-};
+  clickedButton.classList.add('img-filters__button--active');
 
-const rerender = (filter, pictures) => {
-  clearPictures();
-  let filteredPictures;
-
-  switch (filter) {
-    case FilterEnum.RANDOM:
-      filteredPictures = getRandomPictures(pictures);
+  let filteredPictures = [];
+  switch (clickedButton.id) {
+    case 'filter-random':
+      filteredPictures = getRandomPictures();
       break;
-    case FilterEnum.DISCUSSED:
-      filteredPictures = getDiscussedPictures(pictures);
+    case 'filter-discussed':
+      filteredPictures = getDiscussedPictures();
       break;
     default:
       filteredPictures = pictures;
   }
 
+  removePictures();
   renderPictures(filteredPictures);
 };
 
-const debouncedRerender = debounce(rerender, RERENDER_DELAY);
+const debouncedRerender = debounce(rerenderPictures, RERENDER_DELAY);
 
-const initFilters = (pictures) => {
+const initFilters = (data) => {
+  pictures = data;
   filtersElement.classList.remove('img-filters--inactive');
-
-  filterForm.addEventListener('click', (evt) => {
-    if (!evt.target.classList.contains('img-filters__button')) {
-      return;
-    }
-
-    setActiveButton(evt.target);
-    debouncedRerender(evt.target.id.replace('filter-', ''), pictures);
-  });
+  filterFormElement.addEventListener('click', debouncedRerender);
 };
 
 export { initFilters };

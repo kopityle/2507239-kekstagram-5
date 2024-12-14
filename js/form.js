@@ -104,22 +104,34 @@ const unblockSubmitButton = () => {
   submitButton.textContent = SubmitButtonText.IDLE;
 };
 
-function onDocumentKeydown(evt) {
+function handleDocumentKeydown(evt) {
+  const errorMessage = document.querySelector('.error');
+  const successMessage = document.querySelector('.success');
   if (evt.key === 'Escape') {
     evt.preventDefault();
-    closeUploadOverlay();
+    if (errorMessage) {
+      errorMessage.querySelector('.error__button').click();
+      return;
+    }
+    if (successMessage) {
+      successMessage.querySelector('.success__button').click();
+      return;
+    }
+    if (!isTextFieldFocused()) {
+      closeUploadOverlay();
+    }
   }
 }
 
-const onFieldKeydown = (evt) => {
+const handleFieldKeydown = (evt) => {
   evt.stopPropagation();
 };
 
-const onHashtagInput = () => {
+const handleHashtagInput = () => {
   pristine.validate(hashtagsInput);
 };
 
-const onCommentInput = () => {
+const handleCommentInput = () => {
   pristine.validate(commentInput);
 };
 
@@ -131,117 +143,128 @@ const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 const preview = document.querySelector('.img-upload__preview img');
 const effectsPreviews = document.querySelectorAll('.effects__preview');
 
-function onFileInputChange() {
+function handleFileChange() {
   const file = fileInput.files[0];
-  const imageUrl = URL.createObjectURL(file);
-  
-  preview.src = imageUrl;
-  effectsPreviews.forEach((effectPreview) => {
-    effectPreview.style.backgroundImage = `url('${imageUrl}')`;
+  const fileName = file.name.toLowerCase();
+  const isValidType = FILE_TYPES.some((type) => fileName.endsWith(type));
+
+  if (!isValidType) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener('load', () => {
+    preview.src = reader.result;
+    effectsPreviews.forEach((previewElement) => {
+      previewElement.style.backgroundImage = `url('${reader.result}')`;
+    });
   });
 
+  reader.readAsDataURL(file);
   uploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
-  document.addEventListener('keydown', onDocumentKeydown);
-}
+  document.addEventListener('keydown', handleDocumentKeydown);
+};
 
 const resetForm = () => {
   form.reset();
   resetScale();
   resetEffects();
   pristine.reset();
+  fileInput.value = '';
+  preview.src = '';
+  effectsPreviews.forEach((preview) => {
+    preview.style.backgroundImage = '';
+  });
 };
 
 const closeUploadOverlay = () => {
   uploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onDocumentKeydown);
+  document.removeEventListener('keydown', handleDocumentKeydown);
   resetForm();
 };
 
-const onCloseButtonClick = () => {
+const handleFormReset = () => {
+  resetForm();
   closeUploadOverlay();
 };
 
-const onFormSubmit = async (evt) => {
+const handleCloseButtonClick = () => {
+  closeUploadOverlay();
+};
+
+const handleFormSubmit = async (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
+  
+  if (!isValid) {
+    return;
+  }
 
-  if (isValid) {
-    blockSubmitButton();
-    try {
-      await sendData(new FormData(evt.target));
-      closeUploadOverlay();
-      const successMessage = document.querySelector('#success')
-        .content
-        .querySelector('.success')
-        .cloneNode(true);
-      document.body.append(successMessage);
-      
-      const onSuccessButtonClick = () => {
-        successMessage.remove();
-      };
-
-      const onSuccessMessageEscKeydown = (messageEvt) => {
-        if (messageEvt.key === 'Escape') {
-          messageEvt.preventDefault();
-          successMessage.remove();
-          document.removeEventListener('keydown', onSuccessMessageEscKeydown);
-        }
-      };
-
-      const onSuccessMessageClick = (messageEvt) => {
-        if (!messageEvt.target.closest('.success__inner')) {
-          successMessage.remove();
-          document.removeEventListener('click', onSuccessMessageClick);
-        }
-      };
-
-      document.addEventListener('keydown', onSuccessMessageEscKeydown);
-      document.addEventListener('click', onSuccessMessageClick);
-      successMessage.querySelector('.success__button').addEventListener('click', onSuccessButtonClick);
-    } catch (err) {
-      const errorMessage = document.querySelector('#error')
-        .content
-        .querySelector('.error')
-        .cloneNode(true);
-      document.body.append(errorMessage);
-
-      const onErrorButtonClick = () => {
-        errorMessage.remove();
-      };
-
-      const onErrorMessageEscKeydown = (messageEvt) => {
-        if (messageEvt.key === 'Escape') {
-          messageEvt.preventDefault();
-          errorMessage.remove();
-          document.removeEventListener('keydown', onErrorMessageEscKeydown);
-        }
-      };
-
-      const onErrorMessageClick = (messageEvt) => {
-        if (!messageEvt.target.closest('.error__inner')) {
-          errorMessage.remove();
-          document.removeEventListener('click', onErrorMessageClick);
-        }
-      };
-
-      document.addEventListener('keydown', onErrorMessageEscKeydown);
-      document.addEventListener('click', onErrorMessageClick);
-      errorMessage.querySelector('.error__button').addEventListener('click', onErrorButtonClick);
-    } finally {
-      unblockSubmitButton();
+  blockSubmitButton();
+  
+  try {
+    const formData = new FormData(form);
+    const response = await sendData(formData);
+    if (!response.ok) {
+      throw new Error('Ошибка отправки формы');
     }
+    closeUploadOverlay();
+    showMessage('success');
+  } catch (err) {
+    showMessage('error');
+  } finally {
+    unblockSubmitButton();
   }
 };
 
-fileInput.addEventListener('change', onFileInputChange);
-cancelButton.addEventListener('click', onCloseButtonClick);
-form.addEventListener('submit', onFormSubmit);
-form.addEventListener('reset', closeUploadOverlay);
-hashtagsInput.addEventListener('input', onHashtagInput);
-commentInput.addEventListener('input', onCommentInput);
-hashtagsInput.addEventListener('keydown', onFieldKeydown);
-commentInput.addEventListener('keydown', onFieldKeydown);
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
+const handleMessageEscKeydown = (evt) => {
+  if (isEscapeKey(evt)) {
+    evt.preventDefault();
+    hideMessage();
+  }
+};
+
+const handleOutsideClick = (evt) => {
+  const messageElement = document.querySelector('.success') || document.querySelector('.error');
+  if (messageElement && !evt.target.closest('.success__inner') && !evt.target.closest('.error__inner')) {
+    hideMessage();
+  }
+};
+
+const hideMessage = () => {
+  const messageElement = document.querySelector('.success') || document.querySelector('.error');
+  if (messageElement) {
+    messageElement.remove();
+    document.removeEventListener('keydown', handleMessageEscKeydown);
+    document.removeEventListener('click', handleOutsideClick);
+  }
+};
+
+const showMessage = (type) => {
+  hideMessage();
+  
+  const template = document.querySelector(`#${type}`);
+  const messageElement = template.content.querySelector(`.${type}`).cloneNode(true);
+  
+  document.body.append(messageElement);
+  
+  const closeButton = messageElement.querySelector(`.${type}__button`);
+  closeButton.addEventListener('click', hideMessage);
+  document.addEventListener('keydown', handleMessageEscKeydown);
+  document.addEventListener('click', handleOutsideClick);
+};
+
+fileInput.addEventListener('change', handleFileChange);
+cancelButton.addEventListener('click', handleCloseButtonClick);
+form.addEventListener('submit', handleFormSubmit);
+form.addEventListener('reset', handleFormReset);
+hashtagsInput.addEventListener('input', handleHashtagInput);
+commentInput.addEventListener('input', handleCommentInput);
+hashtagsInput.addEventListener('keydown', handleFieldKeydown);
+commentInput.addEventListener('keydown', handleFieldKeydown);
 
 export {form};
