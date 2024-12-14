@@ -99,18 +99,6 @@ const initSlider = () => {
       from: (value) => parseFloat(value),
     }
   });
-
-  effectLevelSlider.noUiSlider.on('update', () => {
-    const value = effectLevelSlider.noUiSlider.get();
-    effectLevelValue.value = value;
-    
-    if (!isDefault()) {
-      const effect = effectToFilter[currentEffect];
-      // Преобразуем значение слайдера (0-100) в значение эффекта
-      const filterValue = (value * (effect.range.max - effect.range.min) / 100) + effect.range.min;
-      setImageStyle(filterValue);
-    }
-  });
 };
 
 const updateSlider = () => {
@@ -123,8 +111,18 @@ const updateSlider = () => {
 
   effectLevel.classList.remove('hidden');
   
-  // Сбрасываем значение слайдера на 100%
-  effectLevelSlider.noUiSlider.set(100);
+  const effect = effectToFilter[currentEffect];
+  // Устанавливаем настройки слайдера согласно текущему эффекту
+  effectLevelSlider.noUiSlider.updateOptions({
+    range: effect.range,
+    step: effect.step,
+    start: effect.start
+  });
+  
+  // Устанавливаем начальное значение в поле
+  effectLevelValue.value = effect.start;
+  // Применяем начальный эффект
+  setImageStyle(effect.start);
 };
 
 const onEffectChange = (evt) => {
@@ -137,6 +135,12 @@ const onEffectChange = (evt) => {
   // Если слайдер еще не создан - создаем
   if (!effectLevelSlider.noUiSlider) {
     initSlider();
+    // Добавляем обработчик изменения значения слайдера
+    effectLevelSlider.noUiSlider.on('update', () => {
+      const sliderValue = effectLevelSlider.noUiSlider.get();
+      effectLevelValue.value = sliderValue;
+      setImageStyle(sliderValue);
+    });
   }
 
   updateSlider();

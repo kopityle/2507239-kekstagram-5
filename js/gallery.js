@@ -2,25 +2,26 @@ import { showBigPicture } from './big-picture.js';
 import { getData } from './api.js';
 import { initFilters } from './filters.js';
 
-const picturesContainer = document.querySelector('.pictures');
-const pictureTemplate = document.querySelector('#picture')
+const picturesContainerElement = document.querySelector('.pictures');
+const pictureTemplateElement = document.querySelector('#picture')
   .content
   .querySelector('.picture');
 
-const createPicture = (photo) => {
-  const pictureElement = pictureTemplate.cloneNode(true);
-  const img = pictureElement.querySelector('.picture__img');
+const createPictureElement = (photo) => {
+  const pictureElement = pictureTemplateElement.cloneNode(true);
+  const imageElement = pictureElement.querySelector('.picture__img');
   
-  img.src = photo.url;
-  img.alt = photo.description;
+  imageElement.src = photo.url;
+  imageElement.alt = photo.description;
   pictureElement.querySelector('.picture__likes').textContent = photo.likes;
   pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
 
-  // Добавляем обработчик клика
-  pictureElement.addEventListener('click', (evt) => {
+  const handlePictureClick = (evt) => {
     evt.preventDefault();
     showBigPicture(photo);
-  });
+  };
+
+  pictureElement.addEventListener('click', handlePictureClick);
 
   return pictureElement;
 };
@@ -29,20 +30,26 @@ const renderPictures = (photos) => {
   const fragment = document.createDocumentFragment();
   
   photos.forEach((photo) => {
-    const pictureElement = createPicture(photo);
+    const pictureElement = createPictureElement(photo);
     fragment.append(pictureElement);
   });
 
-  picturesContainer.append(fragment);
+  picturesContainerElement.append(fragment);
 };
+
+const filtersElement = document.querySelector('.img-filters');
+filtersElement.classList.add('img-filters--inactive');
 
 const renderGallery = async () => {
   try {
-    const pictures = await getData();
-    renderPictures(pictures);
-    initFilters(pictures);
+    const photos = await getData();
+    if (!Array.isArray(photos)) {
+      throw new Error('Неверный формат данных');
+    }
+    renderPictures(photos);
+    initFilters(photos);
   } catch (err) {
-    showMessage('Не удалось загрузить фотографии. Попробуйте обновить страницу');
+    console.error('Не удалось загрузить фотографии:', err);
   }
 };
 
