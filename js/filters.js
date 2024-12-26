@@ -6,9 +6,6 @@ const RERENDER_DELAY = 500;
 
 const filtersElement = document.querySelector('.img-filters');
 const filterFormElement = document.querySelector('.img-filters__form');
-const defaultButtonElement = document.querySelector('#filter-default');
-const randomButtonElement = document.querySelector('#filter-random');
-const discussedButtonElement = document.querySelector('#filter-discussed');
 
 let pictures = [];
 
@@ -25,9 +22,7 @@ const getRandomPictures = () => {
   return randomPictures;
 };
 
-const getDiscussedPictures = () => {
-  return pictures.slice().sort((a, b) => b.comments.length - a.comments.length);
-};
+const getDiscussedPictures = () => pictures.slice().sort((a, b) => b.comments.length - a.comments.length);
 
 const removePictures = () => {
   const pictureElements = document.querySelectorAll('.picture');
@@ -36,7 +31,7 @@ const removePictures = () => {
 
 const rerenderPictures = (evt) => {
   const clickedButton = evt.target;
-  
+
   if (clickedButton.classList.contains('img-filters__button--active')) {
     return;
   }
@@ -64,6 +59,11 @@ const rerenderPictures = (evt) => {
 const debouncedRerender = debounce(rerenderPictures, RERENDER_DELAY);
 
 const initFilters = (data) => {
+  if (!data || data.length === 0) {
+    filtersElement.classList.add('img-filters--inactive');
+    return;
+  }
+
   pictures = data;
   filtersElement.classList.remove('img-filters--inactive');
   filterFormElement.addEventListener('click', debouncedRerender);

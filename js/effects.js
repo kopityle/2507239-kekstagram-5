@@ -110,7 +110,7 @@ const updateSlider = () => {
   }
 
   effectLevel.classList.remove('hidden');
-  
+
   const effect = effectToFilter[currentEffect];
   // Устанавливаем настройки слайдера согласно текущему эффекту
   effectLevelSlider.noUiSlider.updateOptions({
@@ -118,7 +118,7 @@ const updateSlider = () => {
     step: effect.step,
     start: effect.start
   });
-  
+
   // Устанавливаем начальное значение в поле
   effectLevelValue.value = effect.start;
   // Применяем начальный эффект

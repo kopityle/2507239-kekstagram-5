@@ -22,8 +22,7 @@ const getData = () => fetch(`${BASE_URL}${Route.GET_DATA}`)
     }
     return response.json();
   })
-  .catch((err) => {
-    console.error(err);
+  .catch(() => {
     throw new Error(ErrorText.GET_DATA);
   });
 
@@ -37,8 +36,7 @@ const sendData = (body) => fetch(`${BASE_URL}${Route.SEND_DATA}`, {
     }
     return response;
   })
-  .catch((err) => {
-    console.error(err);
+  .catch(() => {
     throw new Error(ErrorText.SEND_DATA);
   });
 

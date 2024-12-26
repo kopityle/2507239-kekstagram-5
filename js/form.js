@@ -28,7 +28,7 @@ const validateHashtags = (value) => {
   }
 
   const hashtags = value.trim().split(' ').filter((tag) => tag.length > 0);
-  
+
   if (hashtags.length === 0) {
     return true;
   }
@@ -83,7 +83,7 @@ const getHashtagErrorMessage = (value) => {
 
 const validateComment = (value) => !value || value.length <= MAX_COMMENT_LENGTH;
 
-const getCommentErrorMessage = () => 
+const getCommentErrorMessage = () =>
   `Длина комментария не может составлять больше ${MAX_COMMENT_LENGTH} символов`;
 
 pristine.addValidator(hashtagsInput, validateHashtags, getHashtagErrorMessage);
@@ -135,12 +135,12 @@ const handleCommentInput = () => {
   pristine.validate(commentInput);
 };
 
-const isTextFieldFocused = () => 
-  document.activeElement === hashtagsInput ||
-  document.activeElement === commentInput;
+function isTextFieldFocused() {
+  return document.activeElement === hashtagsInput ||
+         document.activeElement === commentInput;
+}
 
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];
-const preview = document.querySelector('.img-upload__preview img');
 const effectsPreviews = document.querySelectorAll('.effects__preview');
 
 function handleFileChange() {
@@ -154,9 +154,10 @@ function handleFileChange() {
 
   const reader = new FileReader();
   reader.addEventListener('load', () => {
-    preview.src = reader.result;
-    effectsPreviews.forEach((previewElement) => {
-      previewElement.style.backgroundImage = `url('${reader.result}')`;
+    const previewElement = document.querySelector('.img-upload__preview img');
+    previewElement.src = reader.result;
+    effectsPreviews.forEach((preview) => {
+      preview.style.backgroundImage = `url('${reader.result}')`;
     });
   });
 
@@ -164,7 +165,7 @@ function handleFileChange() {
   uploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
   document.addEventListener('keydown', handleDocumentKeydown);
-};
+}
 
 const resetForm = () => {
   form.reset();
@@ -172,18 +173,19 @@ const resetForm = () => {
   resetEffects();
   pristine.reset();
   fileInput.value = '';
-  preview.src = '';
+  const mainPreview = document.querySelector('.img-upload__preview img');
+  mainPreview.src = '';
   effectsPreviews.forEach((preview) => {
     preview.style.backgroundImage = '';
   });
 };
 
-const closeUploadOverlay = () => {
+function closeUploadOverlay() {
   uploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
   document.removeEventListener('keydown', handleDocumentKeydown);
   resetForm();
-};
+}
 
 const handleFormReset = () => {
   resetForm();
@@ -197,13 +199,13 @@ const handleCloseButtonClick = () => {
 const handleFormSubmit = async (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
-  
+
   if (!isValid) {
     return;
   }
 
   blockSubmitButton();
-  
+
   try {
     const formData = new FormData(form);
     await sendData(formData);
@@ -232,28 +234,28 @@ const handleOutsideClick = (evt) => {
   }
 };
 
-const hideMessage = () => {
+function hideMessage() {
   const messageElement = document.querySelector('.success') || document.querySelector('.error');
   if (messageElement) {
     messageElement.remove();
     document.removeEventListener('keydown', handleMessageEscKeydown);
     document.removeEventListener('click', handleOutsideClick);
   }
-};
+}
 
-const showMessage = (type) => {
+function showMessage(type) {
   hideMessage();
-  
+
   const template = document.querySelector(`#${type}`);
   const messageElement = template.content.querySelector(`.${type}`).cloneNode(true);
-  
+
   document.body.append(messageElement);
-  
+
   const closeButton = messageElement.querySelector(`.${type}__button`);
   closeButton.addEventListener('click', hideMessage);
   document.addEventListener('keydown', handleMessageEscKeydown);
   document.addEventListener('click', handleOutsideClick);
-};
+}
 
 fileInput.addEventListener('change', handleFileChange);
 cancelButton.addEventListener('click', handleCloseButtonClick);

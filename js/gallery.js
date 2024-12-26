@@ -10,7 +10,7 @@ const pictureTemplateElement = document.querySelector('#picture')
 const createPictureElement = (photo) => {
   const pictureElement = pictureTemplateElement.cloneNode(true);
   const imageElement = pictureElement.querySelector('.picture__img');
-  
+
   imageElement.src = photo.url;
   imageElement.alt = photo.description;
   pictureElement.querySelector('.picture__likes').textContent = photo.likes;
@@ -28,7 +28,7 @@ const createPictureElement = (photo) => {
 
 const renderPictures = (photos) => {
   const fragment = document.createDocumentFragment();
-  
+
   photos.forEach((photo) => {
     const pictureElement = createPictureElement(photo);
     fragment.append(pictureElement);
@@ -49,7 +49,7 @@ const renderGallery = async () => {
     renderPictures(photos);
     initFilters(photos);
   } catch (err) {
-    console.error('Не удалось загрузить фотографии:', err);
+    throw new Error('Не удалось загрузить фотографии');
   }
 };
 
