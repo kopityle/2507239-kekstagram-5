@@ -152,10 +152,10 @@ function handleFileChange() {
 
   const reader = new FileReader();
   reader.addEventListener('load', () => {
-    const previewElement = document.querySelector('.img-upload__preview img');
-    previewElement.src = reader.result;
-    effectsPreviews.forEach((preview) => {
-      preview.style.backgroundImage = `url('${reader.result}')`;
+    const mainPreview = document.querySelector('.img-upload__preview img');
+    mainPreview.src = reader.result;
+    effectsPreviews.forEach((effectPreview) => {
+      effectPreview.style.backgroundImage = `url('${reader.result}')`;
     });
   });
 
@@ -171,10 +171,10 @@ const resetForm = () => {
   resetEffects();
   pristine.reset();
   fileInput.value = '';
-  const previewElement = document.querySelector('.img-upload__preview img');
-  previewElement.src = '';
-  effectsPreviews.forEach((preview) => {
-    preview.style.backgroundImage = '';
+  const mainPreview = document.querySelector('.img-upload__preview img');
+  mainPreview.src = '';
+  effectsPreviews.forEach((effectPreview) => {
+    effectPreview.style.backgroundImage = '';
   });
 };
 
@@ -226,16 +226,16 @@ const handleMessageEscKeydown = (evt) => {
 };
 
 const handleOutsideClick = (evt) => {
-  const messageElement = document.querySelector('.success') || document.querySelector('.error');
-  if (messageElement && !evt.target.closest('.success__inner') && !evt.target.closest('.error__inner')) {
+  const message = document.querySelector('.success') || document.querySelector('.error');
+  if (message && !evt.target.closest('.success__inner') && !evt.target.closest('.error__inner')) {
     hideMessage();
   }
 };
 
 function hideMessage() {
-  const messageElement = document.querySelector('.success') || document.querySelector('.error');
-  if (messageElement) {
-    messageElement.remove();
+  const message = document.querySelector('.success') || document.querySelector('.error');
+  if (message) {
+    message.remove();
     document.removeEventListener('keydown', handleMessageEscKeydown);
     document.removeEventListener('click', handleOutsideClick);
   }
@@ -245,11 +245,11 @@ function showMessage(type) {
   hideMessage();
 
   const template = document.querySelector(`#${type}`);
-  const messageElement = template.content.querySelector(`.${type}`).cloneNode(true);
+  const message = template.content.querySelector(`.${type}`).cloneNode(true);
 
-  document.body.append(messageElement);
+  document.body.append(message);
 
-  const closeButton = messageElement.querySelector(`.${type}__button`);
+  const closeButton = message.querySelector(`.${type}__button`);
   closeButton.addEventListener('click', hideMessage);
   document.addEventListener('keydown', handleMessageEscKeydown);
   document.addEventListener('click', handleOutsideClick);

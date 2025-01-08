@@ -2,43 +2,43 @@ import { showBigPicture } from './big-picture.js';
 import { getData } from './api.js';
 import { initFilters } from './filters.js';
 
-const filtersElement = document.querySelector('.img-filters');
-const picturesContainerElement = document.querySelector('.pictures');
-const pictureTemplateElement = document.querySelector('#picture')
+const filters = document.querySelector('.img-filters');
+const picturesContainer = document.querySelector('.pictures');
+const pictureTemplate = document.querySelector('#picture')
   .content
   .querySelector('.picture');
 
-const createPictureElement = (photo) => {
-  const pictureElement = pictureTemplateElement.cloneNode(true);
-  const imageElement = pictureElement.querySelector('.picture__img');
+const createPicture = (photo) => {
+  const picture = pictureTemplate.cloneNode(true);
+  const image = picture.querySelector('.picture__img');
 
-  imageElement.src = photo.url;
-  imageElement.alt = photo.description;
-  pictureElement.querySelector('.picture__likes').textContent = photo.likes;
-  pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
+  image.src = photo.url;
+  image.alt = photo.description;
+  picture.querySelector('.picture__likes').textContent = photo.likes;
+  picture.querySelector('.picture__comments').textContent = photo.comments.length;
 
   const handlePictureClick = (evt) => {
     evt.preventDefault();
     showBigPicture(photo);
   };
 
-  pictureElement.addEventListener('click', handlePictureClick);
+  picture.addEventListener('click', handlePictureClick);
 
-  return pictureElement;
+  return picture;
 };
 
 const renderPictures = (photos) => {
   const fragment = document.createDocumentFragment();
 
   photos.forEach((photo) => {
-    const pictureElement = createPictureElement(photo);
-    fragment.append(pictureElement);
+    const picture = createPicture(photo);
+    fragment.append(picture);
   });
 
-  picturesContainerElement.append(fragment);
+  picturesContainer.append(fragment);
 };
 
-filtersElement.classList.add('img-filters--inactive');
+filters.classList.add('img-filters--inactive');
 
 const renderGallery = async () => {
   try {

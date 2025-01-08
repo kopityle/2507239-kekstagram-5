@@ -30,16 +30,16 @@ function renderComments(comments, isInitial = false) {
   const commentsToRender = comments.slice(shownCommentsCount, shownCommentsCount + COMMENTS_PER_PORTION);
 
   commentsToRender.forEach(({avatar, name, message}) => {
-    const comment = document.createElement('div');
-    comment.innerHTML = COMMENT_TEMPLATE;
-    const commentElement = comment.firstElementChild;
+    const commentContainer = document.createElement('div');
+    commentContainer.innerHTML = COMMENT_TEMPLATE;
+    const comment = commentContainer.firstElementChild;
 
-    const img = commentElement.querySelector('.social__picture');
+    const img = comment.querySelector('.social__picture');
     img.src = avatar;
     img.alt = name;
-    commentElement.querySelector('.social__text').textContent = message;
+    comment.querySelector('.social__text').textContent = message;
 
-    fragment.append(commentElement);
+    fragment.append(comment);
   });
 
   commentsList.append(fragment);
@@ -76,10 +76,15 @@ function showBigPicture(photo) {
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
 
-  bigPicture.querySelector('.big-picture__img img').src = photo.url;
-  bigPicture.querySelector('.likes-count').textContent = photo.likes;
-  bigPicture.querySelector('.comments-count').textContent = photo.comments.length;
-  bigPicture.querySelector('.social__caption').textContent = photo.description;
+  const img = bigPicture.querySelector('.big-picture__img img');
+  const likes = bigPicture.querySelector('.likes-count');
+  const commentsCountValue = bigPicture.querySelector('.comments-count');
+  const caption = bigPicture.querySelector('.social__caption');
+
+  img.src = photo.url;
+  likes.textContent = photo.likes;
+  commentsCountValue.textContent = photo.comments.length;
+  caption.textContent = photo.description;
 
   currentComments = photo.comments;
   renderComments(currentComments, true);
