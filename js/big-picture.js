@@ -45,10 +45,8 @@ function renderComments(comments, isInitial = false) {
   commentsList.append(fragment);
   shownCommentsCount += commentsToRender.length;
 
-  // Обновляем счётчик комментариев
   commentsCount.innerHTML = `${shownCommentsCount} из <span class="comments-count">${comments.length}</span> комментариев`;
 
-  // Скрываем кнопку загрузки, если все комментарии показаны или их изначально мало
   if (shownCommentsCount >= comments.length || comments.length <= COMMENTS_PER_PORTION) {
     commentsLoader.classList.add('hidden');
   } else {
@@ -78,20 +76,16 @@ function showBigPicture(photo) {
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
 
-  // Заполняем данными
   bigPicture.querySelector('.big-picture__img img').src = photo.url;
   bigPicture.querySelector('.likes-count').textContent = photo.likes;
   bigPicture.querySelector('.comments-count').textContent = photo.comments.length;
   bigPicture.querySelector('.social__caption').textContent = photo.description;
 
-  // Сохраняем текущие комментарии и отрисовываем первую порцию
   currentComments = photo.comments;
   renderComments(currentComments, true);
 
-  // Показываем счетчик комментариев
   commentsCount.classList.remove('hidden');
 
-  // Добавляем обработчики
   document.addEventListener('keydown', handleEscKeyDown);
   commentsLoader.addEventListener('click', handleCommentsLoaderClick);
 }

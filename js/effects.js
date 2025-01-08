@@ -70,7 +70,6 @@ const effectsList = document.querySelector('.effects__list');
 
 let currentEffect = Effects.NONE;
 
-// Скрываем слайдер изначально
 effectLevel.classList.add('hidden');
 
 const isDefault = () => currentEffect === Effects.NONE;
@@ -112,16 +111,13 @@ const updateSlider = () => {
   effectLevel.classList.remove('hidden');
 
   const effect = effectToFilter[currentEffect];
-  // Устанавливаем настройки слайдера согласно текущему эффекту
   effectLevelSlider.noUiSlider.updateOptions({
     range: effect.range,
     step: effect.step,
     start: effect.start
   });
 
-  // Устанавливаем начальное значение в поле
   effectLevelValue.value = effect.start;
-  // Применяем начальный эффект
   setImageStyle(effect.start);
 };
 
@@ -132,10 +128,8 @@ const onEffectChange = (evt) => {
 
   currentEffect = evt.target.value;
 
-  // Если слайдер еще не создан - создаем
   if (!effectLevelSlider.noUiSlider) {
     initSlider();
-    // Добавляем обработчик изменения значения слайдера
     effectLevelSlider.noUiSlider.on('update', () => {
       const sliderValue = effectLevelSlider.noUiSlider.get();
       effectLevelValue.value = sliderValue;
