@@ -1,16 +1,5 @@
-const bigPicture = document.querySelector('.big-picture');
-const body = document.querySelector('body');
-const cancelButton = bigPicture.querySelector('.big-picture__cancel');
-const commentsCount = bigPicture.querySelector('.social__comment-count');
-const commentsLoader = bigPicture.querySelector('.comments-loader');
-
 const COMMENTS_PER_PORTION = 5;
-let currentComments = [];
-let shownCommentsCount = 0;
-
-function renderComments(comments, isInitial = false) {
-  const commentsList = bigPicture.querySelector('.social__comments');
-  const commentTemplate = `
+const COMMENT_TEMPLATE = `
     <li class="social__comment">
       <img
         class="social__picture"
@@ -21,6 +10,17 @@ function renderComments(comments, isInitial = false) {
     </li>
   `;
 
+const bigPicture = document.querySelector('.big-picture');
+const body = document.querySelector('body');
+const cancelButton = bigPicture.querySelector('.big-picture__cancel');
+const commentsCount = bigPicture.querySelector('.social__comment-count');
+const commentsLoader = bigPicture.querySelector('.comments-loader');
+const commentsList = bigPicture.querySelector('.social__comments');
+
+let currentComments = [];
+let shownCommentsCount = 0;
+
+function renderComments(comments, isInitial = false) {
   if (isInitial) {
     commentsList.innerHTML = '';
     shownCommentsCount = 0;
@@ -31,7 +31,7 @@ function renderComments(comments, isInitial = false) {
 
   commentsToRender.forEach(({avatar, name, message}) => {
     const comment = document.createElement('div');
-    comment.innerHTML = commentTemplate;
+    comment.innerHTML = COMMENT_TEMPLATE;
     const commentElement = comment.firstElementChild;
 
     const img = commentElement.querySelector('.social__picture');

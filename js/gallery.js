@@ -2,6 +2,7 @@ import { showBigPicture } from './big-picture.js';
 import { getData } from './api.js';
 import { initFilters } from './filters.js';
 
+const filtersElement = document.querySelector('.img-filters');
 const picturesContainerElement = document.querySelector('.pictures');
 const pictureTemplateElement = document.querySelector('#picture')
   .content
@@ -37,7 +38,6 @@ const renderPictures = (photos) => {
   picturesContainerElement.append(fragment);
 };
 
-const filtersElement = document.querySelector('.img-filters');
 filtersElement.classList.add('img-filters--inactive');
 
 const renderGallery = async () => {

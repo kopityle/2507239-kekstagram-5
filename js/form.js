@@ -3,6 +3,15 @@ import { reset as resetEffects } from './effects.js';
 import { reset as resetScale } from './scale.js';
 import { sendData } from './api.js';
 
+const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
+const MAX_HASHTAGS = 5;
+const MAX_COMMENT_LENGTH = 140;
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+const SubmitButtonText = {
+  IDLE: 'Опубликовать',
+  SENDING: 'Публикую...'
+};
+
 const form = document.querySelector('.img-upload__form');
 const fileInput = document.querySelector('.img-upload__input');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
@@ -11,10 +20,7 @@ const cancelButton = document.querySelector('.img-upload__cancel');
 const hashtagsInput = form.querySelector('.text__hashtags');
 const commentInput = form.querySelector('.text__description');
 const submitButton = form.querySelector('.img-upload__submit');
-
-const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
-const MAX_HASHTAGS = 5;
-const MAX_COMMENT_LENGTH = 140;
+const effectsPreviews = document.querySelectorAll('.effects__preview');
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
@@ -89,11 +95,6 @@ const getCommentErrorMessage = () =>
 pristine.addValidator(hashtagsInput, validateHashtags, getHashtagErrorMessage);
 pristine.addValidator(commentInput, validateComment, getCommentErrorMessage);
 
-const SubmitButtonText = {
-  IDLE: 'Опубликовать',
-  SENDING: 'Публикую...'
-};
-
 const blockSubmitButton = () => {
   submitButton.disabled = true;
   submitButton.textContent = SubmitButtonText.SENDING;
@@ -140,9 +141,6 @@ function isTextFieldFocused() {
          document.activeElement === commentInput;
 }
 
-const FILE_TYPES = ['jpg', 'jpeg', 'png'];
-const effectsPreviews = document.querySelectorAll('.effects__preview');
-
 function handleFileChange() {
   const file = fileInput.files[0];
   const fileName = file.name.toLowerCase();
@@ -173,8 +171,8 @@ const resetForm = () => {
   resetEffects();
   pristine.reset();
   fileInput.value = '';
-  const mainPreview = document.querySelector('.img-upload__preview img');
-  mainPreview.src = '';
+  const previewElement = document.querySelector('.img-upload__preview img');
+  previewElement.src = '';
   effectsPreviews.forEach((preview) => {
     preview.style.backgroundImage = '';
   });
