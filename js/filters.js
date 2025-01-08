@@ -29,7 +29,7 @@ const removePictures = () => {
   thumbnails.forEach((thumbnail) => thumbnail.remove());
 };
 
-const rerenderPictures = (evt) => {
+const rerenderPicturesHandler = (evt) => {
   const clickedButton = evt.target;
 
   if (clickedButton.classList.contains('img-filters__button--active')) {
@@ -56,7 +56,7 @@ const rerenderPictures = (evt) => {
   renderPictures(filteredPictures);
 };
 
-const debouncedRerender = debounce(rerenderPictures, RERENDER_DELAY);
+const debouncedClickHandler = debounce(rerenderPicturesHandler, RERENDER_DELAY);
 
 const initFilters = (data) => {
   if (!data || data.length === 0) {
@@ -66,7 +66,7 @@ const initFilters = (data) => {
 
   pictures = data;
   filters.classList.remove('img-filters--inactive');
-  filterForm.addEventListener('click', debouncedRerender);
+  filterForm.addEventListener('click', debouncedClickHandler);
 };
 
 export { initFilters };

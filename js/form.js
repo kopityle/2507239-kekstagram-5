@@ -7,7 +7,7 @@ const HASHTAG_REGEX = /^#[a-zа-яё0-9]{1,19}$/i;
 const MAX_HASHTAGS = 5;
 const MAX_COMMENT_LENGTH = 140;
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];
-const SubmitButtonText = {
+const SUBMIT_BUTTON_TEXT = {
   IDLE: 'Опубликовать',
   SENDING: 'Публикую...'
 };
@@ -97,15 +97,15 @@ pristine.addValidator(commentInput, validateComment, getCommentErrorMessage);
 
 const blockSubmitButton = () => {
   submitButton.disabled = true;
-  submitButton.textContent = SubmitButtonText.SENDING;
+  submitButton.textContent = SUBMIT_BUTTON_TEXT.SENDING;
 };
 
 const unblockSubmitButton = () => {
   submitButton.disabled = false;
-  submitButton.textContent = SubmitButtonText.IDLE;
+  submitButton.textContent = SUBMIT_BUTTON_TEXT.IDLE;
 };
 
-function handleDocumentKeydown(evt) {
+function documentKeydownHandler(evt) {
   const errorMessage = document.querySelector('.error');
   const successMessage = document.querySelector('.success');
   if (evt.key === 'Escape') {
@@ -124,15 +124,15 @@ function handleDocumentKeydown(evt) {
   }
 }
 
-const handleFieldKeydown = (evt) => {
+const fieldKeydownHandler = (evt) => {
   evt.stopPropagation();
 };
 
-const handleHashtagInput = () => {
+const hashtagInputHandler = () => {
   pristine.validate(hashtagsInput);
 };
 
-const handleCommentInput = () => {
+const commentInputHandler = () => {
   pristine.validate(commentInput);
 };
 
@@ -141,7 +141,7 @@ function isTextFieldFocused() {
          document.activeElement === commentInput;
 }
 
-function handleFileChange() {
+function fileChangeHandler() {
   const file = fileInput.files[0];
   const fileName = file.name.toLowerCase();
   const isValidType = FILE_TYPES.some((type) => fileName.endsWith(type));
@@ -162,7 +162,7 @@ function handleFileChange() {
   reader.readAsDataURL(file);
   uploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
-  document.addEventListener('keydown', handleDocumentKeydown);
+  document.addEventListener('keydown', documentKeydownHandler);
 }
 
 const resetForm = () => {
@@ -181,20 +181,20 @@ const resetForm = () => {
 function closeUploadOverlay() {
   uploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
-  document.removeEventListener('keydown', handleDocumentKeydown);
+  document.removeEventListener('keydown', documentKeydownHandler);
   resetForm();
 }
 
-const handleFormReset = () => {
+const formResetHandler = () => {
   resetForm();
   closeUploadOverlay();
 };
 
-const handleCloseButtonClick = () => {
+const closeButtonClickHandler = () => {
   closeUploadOverlay();
 };
 
-const handleFormSubmit = async (evt) => {
+const formSubmitHandler = async (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
 
@@ -218,31 +218,31 @@ const handleFormSubmit = async (evt) => {
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-const handleMessageEscKeydown = (evt) => {
+const messageEscKeydownHandler = (evt) => {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
-    hideMessage();
+    hideMessageHandler();
   }
 };
 
-const handleOutsideClick = (evt) => {
+const outsideClickHandler = (evt) => {
   const message = document.querySelector('.success') || document.querySelector('.error');
   if (message && !evt.target.closest('.success__inner') && !evt.target.closest('.error__inner')) {
-    hideMessage();
+    hideMessageHandler();
   }
 };
 
-function hideMessage() {
+function hideMessageHandler() {
   const message = document.querySelector('.success') || document.querySelector('.error');
   if (message) {
     message.remove();
-    document.removeEventListener('keydown', handleMessageEscKeydown);
-    document.removeEventListener('click', handleOutsideClick);
+    document.removeEventListener('keydown', messageEscKeydownHandler);
+    document.removeEventListener('click', outsideClickHandler);
   }
 }
 
 function showMessage(type) {
-  hideMessage();
+  hideMessageHandler();
 
   const template = document.querySelector(`#${type}`);
   const message = template.content.querySelector(`.${type}`).cloneNode(true);
@@ -250,18 +250,18 @@ function showMessage(type) {
   document.body.append(message);
 
   const closeButton = message.querySelector(`.${type}__button`);
-  closeButton.addEventListener('click', hideMessage);
-  document.addEventListener('keydown', handleMessageEscKeydown);
-  document.addEventListener('click', handleOutsideClick);
+  closeButton.addEventListener('click', hideMessageHandler);
+  document.addEventListener('keydown', messageEscKeydownHandler);
+  document.addEventListener('click', outsideClickHandler);
 }
 
-fileInput.addEventListener('change', handleFileChange);
-cancelButton.addEventListener('click', handleCloseButtonClick);
-form.addEventListener('submit', handleFormSubmit);
-form.addEventListener('reset', handleFormReset);
-hashtagsInput.addEventListener('input', handleHashtagInput);
-commentInput.addEventListener('input', handleCommentInput);
-hashtagsInput.addEventListener('keydown', handleFieldKeydown);
-commentInput.addEventListener('keydown', handleFieldKeydown);
+fileInput.addEventListener('change', fileChangeHandler);
+cancelButton.addEventListener('click', closeButtonClickHandler);
+form.addEventListener('submit', formSubmitHandler);
+form.addEventListener('reset', formResetHandler);
+hashtagsInput.addEventListener('input', hashtagInputHandler);
+commentInput.addEventListener('input', commentInputHandler);
+hashtagsInput.addEventListener('keydown', fieldKeydownHandler);
+commentInput.addEventListener('keydown', fieldKeydownHandler);
 
 export {form};

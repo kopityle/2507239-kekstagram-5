@@ -11,18 +11,20 @@ const pictureTemplate = document.querySelector('#picture')
 const createPicture = (photo) => {
   const picture = pictureTemplate.cloneNode(true);
   const image = picture.querySelector('.picture__img');
+  const pictureLikes = picture.querySelector('.picture__likes');
+  const pictureComments = picture.querySelector('.picture__comments');
 
   image.src = photo.url;
   image.alt = photo.description;
-  picture.querySelector('.picture__likes').textContent = photo.likes;
-  picture.querySelector('.picture__comments').textContent = photo.comments.length;
+  pictureLikes.textContent = photo.likes;
+  pictureComments.textContent = photo.comments.length;
 
-  const handlePictureClick = (evt) => {
+  const pictureClickHandler = (evt) => {
     evt.preventDefault();
     showBigPicture(photo);
   };
 
-  picture.addEventListener('click', handlePictureClick);
+  picture.addEventListener('click', pictureClickHandler);
 
   return picture;
 };

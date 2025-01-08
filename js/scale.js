@@ -13,13 +13,13 @@ const scaleImage = (value) => {
   scaleControlValue.value = `${value}%`;
 };
 
-const onSmallerClick = () => {
+const smallerClickHandler = () => {
   const currentValue = parseInt(scaleControlValue.value, 10);
   const newValue = Math.max(MIN_SCALE, currentValue - SCALE_STEP);
   scaleImage(newValue);
 };
 
-const onBiggerClick = () => {
+const biggerClickHandler = () => {
   const currentValue = parseInt(scaleControlValue.value, 10);
   const newValue = Math.min(MAX_SCALE, currentValue + SCALE_STEP);
   scaleImage(newValue);
@@ -29,7 +29,7 @@ const reset = () => {
   scaleImage(DEFAULT_SCALE);
 };
 
-scaleControlSmaller.addEventListener('click', onSmallerClick);
-scaleControlBigger.addEventListener('click', onBiggerClick);
+scaleControlSmaller.addEventListener('click', smallerClickHandler);
+scaleControlBigger.addEventListener('click', biggerClickHandler);
 
 export { reset };

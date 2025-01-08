@@ -9,7 +9,7 @@ const Effects = {
   HEAT: 'heat'
 };
 
-const effectToFilter = {
+const EffectToFilter = {
   [Effects.CHROME]: {
     filter: 'grayscale',
     units: '',
@@ -72,15 +72,15 @@ let currentEffect = Effects.NONE;
 
 effectLevel.classList.add('hidden');
 
-const isDefault = () => currentEffect === Effects.NONE;
+const checkDefaultEffect = () => currentEffect === Effects.NONE;
 
 const setImageStyle = (value) => {
-  if (isDefault()) {
+  if (checkDefaultEffect()) {
     imagePreview.style.filter = '';
     return;
   }
 
-  const effect = effectToFilter[currentEffect];
+  const effect = EffectToFilter[currentEffect];
   imagePreview.style.filter = `${effect.filter}(${value}${effect.units})`;
 };
 
@@ -101,7 +101,7 @@ const initSlider = () => {
 };
 
 const updateSlider = () => {
-  if (isDefault()) {
+  if (checkDefaultEffect()) {
     effectLevel.classList.add('hidden');
     imagePreview.style.filter = '';
     effectLevelValue.value = '';
@@ -110,7 +110,7 @@ const updateSlider = () => {
 
   effectLevel.classList.remove('hidden');
 
-  const effect = effectToFilter[currentEffect];
+  const effect = EffectToFilter[currentEffect];
   effectLevelSlider.noUiSlider.updateOptions({
     range: effect.range,
     step: effect.step,
@@ -121,7 +121,7 @@ const updateSlider = () => {
   setImageStyle(effect.start);
 };
 
-const onEffectChange = (evt) => {
+const effectChangeHandler = (evt) => {
   if (!evt.target.classList.contains('effects__radio')) {
     return;
   }
@@ -150,6 +150,6 @@ const reset = () => {
   effectLevelValue.value = '';
 };
 
-effectsList.addEventListener('change', onEffectChange);
+effectsList.addEventListener('change', effectChangeHandler);
 
 export { reset };
